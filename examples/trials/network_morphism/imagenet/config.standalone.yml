@@ -1,0 +1,31 @@
+authorName: standalone
+experimentName: imagenet-network-morphism-standalone
+trialConcurrency: 1
+maxExecDuration: 12h
+maxTrialNum: 50
+trainingServicePlatform: local
+useAnnotation: false
+
+# Network Morphism tuner configuration
+# Works on a single workstation; adjust image specs if you change dataset
+# (e.g. CIFAR-10 uses input_width 32, input_channel 3, n_output_node 10)
+tuner:
+  builtinTunerName: NetworkMorphism
+  classArgs:
+    optimize_mode: maximize
+    task: cv
+    input_width: 224
+    input_channel: 3
+    n_output_node: 1000
+
+trial:
+  command: >-
+    CUDA_VISIBLE_DEVICES=0 python3 imagenet_train.py
+    --slave 1
+    --ip 127.0.0.1
+    --batch_size 128
+    --num_parallel_calls 8
+    --train_data_dir /workspace/datasets/imagenet/train
+    --val_data_dir /workspace/datasets/imagenet/val
+  codeDir: .
+  gpuNum: 1

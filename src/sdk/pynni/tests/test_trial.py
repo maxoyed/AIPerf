@@ -1,12 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from unittest import TestCase, main
+
+import pytest
+
+np = pytest.importorskip("numpy")
+
 import nni
 import nni.platform.test as test_platform
 import nni.trial
-
-import numpy as np
-from unittest import TestCase, main
 
 
 class TrialTestCase(TestCase):

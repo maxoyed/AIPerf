@@ -7,7 +7,9 @@ test_hyperopt_tuner.py
 
 from unittest import TestCase, main
 
-import hyperopt as hp
+import pytest
+
+hp = pytest.importorskip("hyperopt")
 
 from nni.hyperopt_tuner.hyperopt_tuner import json2space, json2parameter, json2vals, HyperoptTuner
 

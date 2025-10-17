@@ -8,6 +8,9 @@ import string
 import unittest
 import json
 import sys
+import pytest
+
+pyhdfs = pytest.importorskip("pyhdfs")
 from pyhdfs import HdfsClient
 from tools.nni_trial_tool.hdfsClientUtility import copyFileToHdfs, copyDirectoryToHdfs
 sys.path.append("..")

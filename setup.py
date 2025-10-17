@@ -27,20 +27,20 @@ setup(
         'nni_gpu_tool':'tools/nni_gpu_tool'
     },
     package_data = {'nni': ['**/requirements.txt']},
-    python_requires = '>=3.5',
+    python_requires = '>=3.9',
     install_requires = [
-        'astor',
-        'hyperopt==0.1.2',
-        'json_tricks',
-        'numpy',
-        'psutil',
-        'ruamel.yaml',
-        'requests',
-        'scipy',
-        'schema',
-        'PythonWebHDFS',
-        'colorama',
-        'scikit-learn>=0.20,<0.22'
+        'astor>=0.8',
+        'hyperopt>=0.2.7',
+        'json_tricks>=3.17.0',
+        'numpy>=1.26.4',
+        'psutil>=5.9.0',
+        'ruamel.yaml>=0.17.21',
+        'requests>=2.31.0',
+        'scipy>=1.11.4',
+        'schema>=0.7.5',
+        'PythonWebHDFS>=0.2.3',
+        'colorama>=0.4.6',
+        'scikit-learn>=1.3.0'
     ],
 
     entry_points = {

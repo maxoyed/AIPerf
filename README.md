@@ -29,6 +29,15 @@ AIPerf Benchmark基于微软NNI开源框架，以自动化机器学习（AutoML�
 
 Benchmark运行环境由Master节点-Slaves节点组成，其中Mater节点不参与调度不需要配置GPU/加速卡，Slave节点可配置多块加速卡。
 
+#### <span id="head5-1">2025环境更新</span>
+
+2025年起，AIPerf建议使用**Python 3.10/3.11**、**CUDA 12.2+**以及**cuDNN 9**的组合，以便兼容最新的 TensorFlow 2.15+ 与 PyTorch 2.3 GPU 加速包。
+
+* 通过 `pip install -r requirements.txt` 安装公共依赖；A100 等服务器可选用 `requirements-a100.txt` 获得额外的 GPU 优化组件。
+* 若使用裸机或虚拟环境，请确保 `pip` 与 `setuptools` 更新到最新版本，并在安装 TensorFlow 后执行 `pip install nvidia-cudnn-cu12 nvidia-cublas-cu12` 以启用 CUDA 12 的官方轮子。
+* PyTorch 2.3+ 提供 `pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124` 形式的 CUDA 12.4 预编译包；如需 CPU 版本，将索引替换为官方默认地址即可。
+* 推荐使用 `python3 -m venv .venv && source .venv/bin/activate` 创建隔离环境后再进行安装，以免与系统包冲突。
+
 #### <span id="head6"> 1.物理机环境配置</span>
 
 (物理机执行：默认root用户操作)
@@ -169,31 +178,86 @@ mv ILSVRC2012/output/validation-* /root/datasets/imagenet/val
 
 **物理机下载基础镜像**
 
-针对NVIDIA V100
+针对 NVIDIA Ampere 及更新架构（推荐）
 ```
-docker pull nvidia/cuda:10.1-cudnn7-devel-ubuntu16.04
+docker pull nvidia/cuda:12.4.1-cudnn9-devel-ubuntu22.04
 ```
-针对NVIDIA A100
-```
-docker pull nvidia/cuda:11.1-cudnn8-devel-ubuntu16.04
-```
+若需兼容旧版 GPU（如 V100），可选择 `nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04` 基础镜像。
 
 **启动容器**
 
-针对NVIDIA V100
+针对 NVIDIA Ampere 及更新架构
 ```
-nvidia-docker run -it --name build_AIPerf -v /userhome:/userhome -v /root/datasets:/root/datasets nvidia/cuda:10.1-cudnn7-devel-ubuntu16.04
+nvidia-docker run -it --name build_AIPerf \
+  -v /userhome:/userhome -v /root/datasets:/root/datasets \
+  nvidia/cuda:12.4.1-cudnn9-devel-ubuntu22.04
 ```
-针对NVIDIA A100
-```
-nvidia-docker run -it --name build_AIPerf -v /userhome:/userhome -v /root/datasets:/root/datasets nvcr.io/nvidia/cuda:11.2.0-cudnn8-devel-ubuntu18.04
-```
+如需运行在较旧的 GPU 上，将镜像名替换为上一节所列的 11.x 版本。
 
 **安装基础工具**
 
 ```
 apt update && apt install git vim cmake make openssh-client openssh-server wget tzdata  curl sshpass -y
 ```
+
+### <span id="head7-1"> 单机快速启动（Standalone）</span>
+
+在仅有一台服务器或工作站的情况下，可以同时承担 Master 与 Slave 的职责，无需额外的 NFS 共享或 SLURM 集群。以下流程假设已经按照前文准备好容器/虚拟环境：
+
+1. **准备目录结构**  
+   在宿主机或容器中创建本地数据与工作目录，例如：
+
+   ```bash
+   mkdir -p /workspace/datasets/imagenet/{train,val}
+   mkdir -p /workspace/AIPerf-run
+   ```
+
+   将 TFRecord 数据拷贝到上述 `train`、`val` 目录，或使用较小的数据集（如 CIFAR-10）验证流程。
+
+2. **克隆项目并安装依赖**
+   ```bash
+   cd /workspace/AIPerf-run
+   git clone https://github.com/AI-HPC-Research-Team/AIPerf.git
+   cd AIPerf
+   python3 -m venv .venv && source .venv/bin/activate
+   pip install --upgrade pip setuptools wheel
+   pip install -r requirements.txt
+   ```
+
+3. **（可选）运行自检测试**
+   完成依赖安装后执行一次 `pytest`，可以验证核心 Python 组件是否可用。默认环境缺少可选的 GPU/大数据依赖时，终端会看到 `14 skipped` 的提示属正常现象：
+
+   ```bash
+   pytest
+   ```
+
+   若需要运行全部测试，请提前按需求安装 `hyperopt`、`torch`、`astor`、`pyhdfs` 等可选库。
+
+4. **选择单机配置模板**
+   针对单机使用新增了 `examples/trials/network_morphism/imagenet/config.standalone.yml`，核心差异是：
+   - `trainingServicePlatform` 仍为 `local`，但 trial 并发数 (`trialConcurrency`) 与 `--slave` 参数均默认为 1；
+   - 直接使用 `CUDA_VISIBLE_DEVICES=0` 绑定首块 GPU，无需 `srun` 等调度命令；
+   - 数据路径指向前面创建的本地目录。
+
+   根据显存大小，可适度调整 `--batch_size`（默认 128），或将 `CUDA_VISIBLE_DEVICES` 更换为其它 GPU 编号。
+
+5. **启动 Benchmark**
+   ```bash
+   cd examples/trials/network_morphism/imagenet
+   nnictl create -c config.standalone.yml
+   ```
+
+   使用 `nnictl top` 观察 Trial 运行情况，实验 ID 可用于后续生成报告。
+
+6. **生成报告并清理**
+   实验完成后执行：
+
+   ```bash
+   python3 /workspace/AIPerf/scripts/reports/report.py --id <experiment_ID>
+   nnictl stop --all
+   ```
+
+   报告说明请参考下文“报告生成与解读”章节。若需要下次继续实验，只需重新激活虚拟环境并执行第 4 步。
 
 *配置ssh-server*
 

@@ -16,7 +16,10 @@ from .env_vars import dispatcher_env_vars
 from .utils import MetricType, to_json
 
 # add from v1.1 -
-import zmq
+try:
+    import zmq
+except ModuleNotFoundError:  # pragma: no cover - optional dependency in tests
+    zmq = None  # type: ignore[assignment]
 import threading as th
 import sys
 from nni.networkmorphism_tuner.graph import json_to_graph
@@ -86,6 +89,8 @@ class MsgDispatcher(MsgDispatcherBase):
         if assessor is None:
             _logger.debug('Assessor is not configured')
         self.current_jobs = 0
+        if zmq is None:
+            raise RuntimeError("pyzmq is required to create a MsgDispatcher")
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind("tcp://0.0.0.0:800081")

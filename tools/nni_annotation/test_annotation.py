@@ -3,7 +3,17 @@
 
 # pylint: skip-file
 
-from .__init__ import *
+import pytest
+
+try:
+    import astor  # type: ignore  # pragma: no cover - optional dependency
+except ModuleNotFoundError:
+    pytest.skip("astor is required for annotation tests", allow_module_level=True)
+
+try:
+    from .__init__ import *  # type: ignore  # pylint: disable=wildcard-import
+except (ModuleNotFoundError, ImportError):
+    pytest.skip("Annotation tools dependencies are unavailable", allow_module_level=True)
 
 import ast
 import json

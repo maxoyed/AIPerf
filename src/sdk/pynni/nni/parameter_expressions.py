@@ -5,7 +5,21 @@
 parameter_expression.py
 '''
 
-import numpy as np
+from __future__ import annotations
+
+try:
+    import numpy as np
+except ModuleNotFoundError:  # pragma: no cover - optional dependency in tests
+    np = None  # type: ignore[assignment]
+
+
+def _require_numpy() -> None:
+    """Raise a helpful error when ``numpy`` is unavailable."""
+    if np is None:  # type: ignore[truthy-bool]
+        raise RuntimeError(
+            "NumPy is required for sampling parameter expressions. "
+            "Install the optional dependency or skip tests that rely on it."
+        )
 
 
 def choice(options, random_state):
@@ -43,7 +57,8 @@ def quniform(low, high, q, random_state):
     q: sample step
     random_state: an object of numpy.random.RandomState
     '''
-    return np.clip(np.round(uniform(low, high, random_state) / q) * q, low, high)
+    _require_numpy()
+    return np.clip(np.round(uniform(low, high, random_state) / q) * q, low, high)  # type: ignore[arg-type]
 
 
 def loguniform(low, high, random_state):
@@ -53,7 +68,8 @@ def loguniform(low, high, random_state):
     random_state: an object of numpy.random.RandomState
     '''
     assert low > 0, 'Lower bound must be positive'
-    return np.exp(uniform(np.log(low), np.log(high), random_state))
+    _require_numpy()
+    return np.exp(uniform(np.log(low), np.log(high), random_state))  # type: ignore[arg-type]
 
 
 def qloguniform(low, high, q, random_state):
@@ -63,7 +79,8 @@ def qloguniform(low, high, q, random_state):
     q: sample step
     random_state: an object of numpy.random.RandomState
     '''
-    return np.clip(np.round(loguniform(low, high, random_state) / q) * q, low, high)
+    _require_numpy()
+    return np.clip(np.round(loguniform(low, high, random_state) / q) * q, low, high)  # type: ignore[arg-type]
 
 
 def normal(mu, sigma, random_state):
@@ -86,7 +103,8 @@ def qnormal(mu, sigma, q, random_state):
     q: sample step
     random_state: an object of numpy.random.RandomState
     '''
-    return np.round(normal(mu, sigma, random_state) / q) * q
+    _require_numpy()
+    return np.round(normal(mu, sigma, random_state) / q) * q  # type: ignore[arg-type]
 
 
 def lognormal(mu, sigma, random_state):
@@ -95,7 +113,8 @@ def lognormal(mu, sigma, random_state):
     sigma: float or array_like of floats
     random_state: an object of numpy.random.RandomState
     '''
-    return np.exp(normal(mu, sigma, random_state))
+    _require_numpy()
+    return np.exp(normal(mu, sigma, random_state))  # type: ignore[arg-type]
 
 
 def qlognormal(mu, sigma, q, random_state):
@@ -105,4 +124,5 @@ def qlognormal(mu, sigma, q, random_state):
     q: sample step
     random_state: an object of numpy.random.RandomState
     '''
-    return np.round(lognormal(mu, sigma, random_state) / q) * q
+    _require_numpy()
+    return np.round(lognormal(mu, sigma, random_state) / q) * q  # type: ignore[arg-type]
