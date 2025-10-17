@@ -5,11 +5,15 @@ import os
 
 os.environ['NNI_PLATFORM'] = 'unittest'
 
+from unittest import TestCase, main
+
+import pytest
+
+pytest.importorskip("numpy")
+
 import nni
 import nni.platform.test as test_platform
 import nni.trial
-
-from unittest import TestCase, main
 
 
 

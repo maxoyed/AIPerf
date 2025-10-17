@@ -1,7 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
+try:
+    import numpy as np
+except ModuleNotFoundError:  # pragma: no cover - optional dependency in tests
+    np = None  # type: ignore[assignment]
 
 from .env_vars import trial_env_vars
 from . import trial
@@ -25,41 +28,47 @@ __all__ = [
 ]
 
 
+def _random_state():
+    if np is None:  # type: ignore[truthy-bool]
+        raise RuntimeError("NumPy is required for sampling smart parameters")
+    return np.random.RandomState()
+
+
 if trial_env_vars.NNI_PLATFORM is None:
     def choice(*options, name=None):
-        return param_exp.choice(options, np.random.RandomState())
+        return param_exp.choice(options, _random_state())
 
     def randint(lower, upper, name=None):
-        return param_exp.randint(lower, upper, np.random.RandomState())
+        return param_exp.randint(lower, upper, _random_state())
 
     def uniform(low, high, name=None):
-        return param_exp.uniform(low, high, np.random.RandomState())
+        return param_exp.uniform(low, high, _random_state())
 
     def quniform(low, high, q, name=None):
         assert high > low, 'Upper bound must be larger than lower bound'
-        return param_exp.quniform(low, high, q, np.random.RandomState())
+        return param_exp.quniform(low, high, q, _random_state())
 
     def loguniform(low, high, name=None):
         assert low > 0, 'Lower bound must be positive'
-        return param_exp.loguniform(low, high, np.random.RandomState())
+        return param_exp.loguniform(low, high, _random_state())
 
     def qloguniform(low, high, q, name=None):
-        return param_exp.qloguniform(low, high, q, np.random.RandomState())
+        return param_exp.qloguniform(low, high, q, _random_state())
 
     def normal(mu, sigma, name=None):
-        return param_exp.normal(mu, sigma, np.random.RandomState())
+        return param_exp.normal(mu, sigma, _random_state())
 
     def qnormal(mu, sigma, q, name=None):
-        return param_exp.qnormal(mu, sigma, q, np.random.RandomState())
+        return param_exp.qnormal(mu, sigma, q, _random_state())
 
     def lognormal(mu, sigma, name=None):
-        return param_exp.lognormal(mu, sigma, np.random.RandomState())
+        return param_exp.lognormal(mu, sigma, _random_state())
 
     def qlognormal(mu, sigma, q, name=None):
-        return param_exp.qlognormal(mu, sigma, q, np.random.RandomState())
+        return param_exp.qlognormal(mu, sigma, q, _random_state())
 
     def function_choice(*funcs, name=None):
-        return param_exp.choice(funcs, np.random.RandomState())()
+        return param_exp.choice(funcs, _random_state())()
 
     def mutable_layer():
         raise RuntimeError('Cannot call nni.mutable_layer in this mode')

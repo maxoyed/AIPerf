@@ -5,8 +5,11 @@ import os
 import sys
 from unittest import TestCase, main
 
-import torch
-import torch.nn as nn
+import pytest
+
+torch = pytest.importorskip("torch")
+nn = torch.nn
+nni_nas = pytest.importorskip("nni.nas.pytorch")
 from nni.nas.pytorch.classic_nas import get_and_apply_next_architecture
 from nni.nas.pytorch.darts import DartsMutator
 from nni.nas.pytorch.enas import EnasMutator

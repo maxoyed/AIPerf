@@ -1,11 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import nni.protocol
-from nni.protocol import CommandType, send, receive
-
 from io import BytesIO
 from unittest import TestCase, main
+
+import pytest
+
+pytest.importorskip("numpy")
+
+import nni.protocol
+from nni.protocol import CommandType, send, receive
 
 
 def _prepare_send():

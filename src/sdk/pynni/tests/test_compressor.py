@@ -2,11 +2,15 @@
 # Licensed under the MIT license.
 
 from unittest import TestCase, main
-import numpy as np
-import tensorflow as tf
-import torch
-import torch.nn.functional as F
-import schema
+
+import pytest
+
+np = pytest.importorskip("numpy")
+tf = pytest.importorskip("tensorflow")
+torch = pytest.importorskip("torch")
+schema = pytest.importorskip("schema")
+F = torch.nn.functional
+
 import nni.compression.torch as torch_compressor
 import math
 

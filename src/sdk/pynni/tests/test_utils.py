@@ -3,6 +3,10 @@
 
 from unittest import TestCase, main
 
+import pytest
+
+pytest.importorskip("numpy")
+
 import nni
 from nni.utils import split_index
 

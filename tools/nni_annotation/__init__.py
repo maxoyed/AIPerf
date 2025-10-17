@@ -6,9 +6,16 @@ import sys
 import shutil
 import json
 
-from . import code_generator
-from . import search_space_generator
-from . import specific_code_generator
+try:
+    from . import code_generator
+    from . import search_space_generator
+    from . import specific_code_generator
+    _IMPORT_ERROR = None
+except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
+    code_generator = None  # type: ignore[assignment]
+    search_space_generator = None  # type: ignore[assignment]
+    specific_code_generator = None  # type: ignore[assignment]
+    _IMPORT_ERROR = exc
 
 
 __all__ = ['generate_search_space', 'expand_annotations']
@@ -22,6 +29,10 @@ def generate_search_space(code_dir):
     Return a serializable search space object.
     code_dir: directory path of source files (str)
     """
+    if _IMPORT_ERROR is not None:
+        raise RuntimeError(
+            "Annotation tooling dependencies are unavailable"
+        ) from _IMPORT_ERROR
     search_space = {}
 
     if code_dir.endswith(slash):
@@ -65,6 +76,10 @@ def expand_annotations(src_dir, dst_dir, exp_id='', trial_id='', nas_mode=None):
     dst_dir: directory to place generated files (str)
     nas_mode: the mode of NAS given that NAS interface is used
     """
+    if _IMPORT_ERROR is not None:
+        raise RuntimeError(
+            "Annotation tooling dependencies are unavailable"
+        ) from _IMPORT_ERROR
     if src_dir[-1] == slash:
         src_dir = src_dir[:-1]
 

@@ -11,6 +11,10 @@ import sys
 from collections import deque
 from unittest import TestCase, main
 
+import pytest
+
+pytest.importorskip("hyperopt")
+
 from nni.batch_tuner.batch_tuner import BatchTuner
 from nni.evolution_tuner.evolution_tuner import EvolutionTuner
 from nni.gp_tuner.gp_tuner import GPTuner

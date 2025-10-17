@@ -2,11 +2,14 @@
 # Licensed under the MIT license.
 
 import os
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import math
 from unittest import TestCase, main
+
+import pytest
+
+torch = pytest.importorskip("torch")
+nn = torch.nn
+F = torch.nn.functional
 from nni.compression.torch import LevelPruner, SlimPruner, FPGMPruner, L1FilterPruner, \
     L2FilterPruner, AGP_Pruner, ActivationMeanRankFilterPruner, ActivationAPoZRankFilterPruner
 

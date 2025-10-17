@@ -4,7 +4,10 @@
 import json
 from unittest import TestCase, main
 from copy import deepcopy
-import torch
+
+import pytest
+
+torch = pytest.importorskip("torch")
 
 from nni.networkmorphism_tuner.graph import graph_to_json, json_to_graph
 from nni.networkmorphism_tuner.graph_transformer import (

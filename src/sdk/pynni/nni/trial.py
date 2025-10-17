@@ -10,9 +10,11 @@ from . import platform
 import json_tricks
 from . import platform
 import os
-import zmq
-from nni.networkmorphism_tuner.bayesian import BayesianOptimizer
-from nni.networkmorphism_tuner.networkmorphism_tuner import NetworkMorphismTuner
+
+try:
+    import zmq
+except ModuleNotFoundError:  # pragma: no cover - optional dependency in tests
+    zmq = None  # type: ignore[assignment]
 import multiprocessing
 import time
 import datetime

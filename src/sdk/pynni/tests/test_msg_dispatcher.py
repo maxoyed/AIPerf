@@ -5,6 +5,10 @@ import json
 from io import BytesIO
 from unittest import TestCase, main
 
+import pytest
+
+pytest.importorskip("numpy")
+
 import nni.protocol
 from nni.msg_dispatcher import MsgDispatcher
 from nni.protocol import CommandType, send, receive

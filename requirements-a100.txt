@@ -1,8 +1,9 @@
-dill==0.3.2
-jinja2==2.11.2
-Keras==2.5.0
-matplotlib==3.0.3
-tensorflow_gpu==2.5.0
-torch==1.8.0
-zmq==0.0.0
-gpustat
+dill>=0.3.8
+jinja2>=3.1.4
+matplotlib>=3.8.4
+keras>=2.15.0,<3.0
+tensorflow>=2.15.0
+torch>=2.3.0
+torchvision>=0.18.0
+pyzmq>=25.1.2
+gpustat>=1.1.1
